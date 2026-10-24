@@ -27,7 +27,7 @@ For older PHP branches, consult official vendor advisories for affected releases
 
 IP addresses reported in connection with observed PHP2Shell activity are maintained separately for easier updates.
 
-**[View PHP2Shell IOCs](iocs/php2shell-ips.txt)**
+**[View PHP2Shell IOCs](https://github.com/maryamsaniee/threat-detection-rules/blob/main/php2shell/IOCs)**
 
 Some addresses may belong to shared anonymisation infrastructure. Treat IOC matches as investigation leads, not definitive proof of compromise.
 
