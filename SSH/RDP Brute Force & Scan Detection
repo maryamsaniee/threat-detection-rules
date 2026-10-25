@@ -1,0 +1,20 @@
+index=firewall-index dest="PROTECTED_NETWORK" dest_port IN (22, 3389) service!=icmp
+| stats count dc(dest) as DestCounts
+    values(action) as actions
+    by src dest_port
+| where count > 10
+| eval AttackType=case(
+    dest_port=22, "SSH Brute Force / Scan",
+    dest_port=3389, "RDP Brute Force / Scan",
+    1=1, "Suspicious Remote Access Activity"
+)
+| sort -count
+
+
+This rule identifies sources generating a high number of firewall events targeting SSH (port 22) or RDP (port 3389) services within the selected search time range. 
+A high event count may indicate repeated login attempts, service scanning, or other suspicious remote-access activity.
+The rule groups events by source IP address and destination port, then flags sources with more than 10 matching events. 
+Investigate the source IP, firewall actions, destination hosts, and authentication logs to determine whether the activity represents brute-force attempts or reconnaissance.
+
+Note: This rule identifies suspicious connection activity; firewall logs alone may not confirm successful or failed authentication attempts. 
+Tune the threshold and search time range to suit your environment.
