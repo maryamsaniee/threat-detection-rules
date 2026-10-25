@@ -1,0 +1,17 @@
+Attack Description : 
+https://femfortress.com/syn-flood-a-dos-attack-exploiting-tcp-handshake/
+
+index=network_traffic protocol=tcp
+| stats count(eval(tcp_flags="SYN")) as syn_count
+count(eval(tcp_flags="ACK")) as ack_count
+by src_ip, dest_ip, span
+| eval syn_ack_ratio = syn_count / (ack_count + 1)
+| where syn_ack_ratio > 5
+
+### Rule Description
+This rule detects potential TCP SYN flood activity by identifying source and destination IP address pairs with a high ratio of SYN packets to ACK packets. 
+A SYN-to-ACK ratio greater than 5 may indicate an unusually high number of connection initiation attempts compared with acknowledgements, which can be associated with SYN flooding or other suspicious connection patterns.
+The search counts TCP packets with SYN and ACK flags for each source-destination pair, calculates the SYN-to-ACK ratio, and flags pairs where the ratio exceeds the configured threshold of 5.
+Investigate the source and destination IP addresses, packet volumes, connection patterns, and traffic over time to determine whether the activity indicates a potential denial-of-service attack.
+
+**Note:** A high SYN-to-ACK ratio alone does not confirm a SYN flood. Legitimate connection attempts, asymmetric traffic visibility, and incomplete packet capture can also produce elevated ratios. The rule also assumes that `span` is an available field; otherwise, a time bucket should be defined explicitly in the SPL.
