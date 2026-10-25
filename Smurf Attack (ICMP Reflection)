@@ -1,0 +1,15 @@
+index=streamfwd sourcetype="stream:icmp"
+| eventstats values(type_string) as icmp_types by flow_id
+| eval has_echo_reply=if(mvfind(icmp_types,"Echo Reply")>=0,1,0)
+| eval has_echo_request=if(mvfind(icmp_types,"Echo")>=0
+    AND mvfind(icmp_types,"Echo Reply")<0,1,0)
+
+
+### Rule Description
+
+This rule identifies ICMP flows containing Echo Reply messages without corresponding Echo Request messages within the same `flow_id`. 
+This pattern may indicate ICMP reflection activity associated with a potential Smurf attack, in which ICMP traffic is used to overwhelm a target with responses.
+The rule groups ICMP events by `flow_id` and flags flows where Echo Reply traffic is observed without a corresponding Echo Request. 
+Further investigation of traffic volume, source and destination IP addresses, and repeated responses is recommended to determine whether the activity is malicious.
+
+**Note:** This detection pattern alone does not confirm a Smurf attack and may generate false positives in environments where only one direction of ICMP traffic is captured.
