@@ -1,0 +1,15 @@
+Attack description : https://femfortress.com/224-2/
+
+detection Rule : 
+index=streamfwd sourcetype="stream:dns" app=dns
+src="EXTERNAL_DNS_SERVER_IP"
+| eventstats values(message_type) as type by flow_id
+| eval flag=if(match(type,"RESPONSE")
+    AND NOT match(type,"QUERY"),1,0)
+| search flag=1
+
+
+An indication of this attack is observing a large number of DNS responses without corresponding DNS queries. 
+For each flow_id, only a DNS response is present, with no associated query.
+The search returns all such events. 
+By configuring an alert condition and setting a threshold—for example, more than 10 occurrences within a two-minute window—the alert will be triggered when the threshold is exceeded.
